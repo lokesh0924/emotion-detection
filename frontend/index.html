@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Emotion Detection from Text</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="header">
+        <div class="brand">
+          <div class="logo-circle">ED</div>
+          <div>
+            <h1>Emotion Detection from Text</h1>
+            <p class="subtitle">
+              Enter any sentence and see how different machine learning models
+              classify the underlying emotion.
+            </p>
+          </div>
+        </div>
+        <nav class="nav">
+          <a href="#playground">Playground</a>
+          <a href="#details">How it works</a>
+          <a href="#models">Models</a>
+        </nav>
+      </header>
+
+      <main>
+        <!-- Prediction Playground -->
+        <section id="playground" class="card card-main">
+          <div class="card-header">
+            <h2>Try the Emotion Detector</h2>
+            <p>
+              Type a message below, submit it, and our API will return emotion
+              predictions from six different models.
+            </p>
+          </div>
+
+          <form id="emotion-form" class="form">
+            <label for="text-input" class="form-label">
+              Your text
+              <span class="hint">
+                (e.g. “I am so happy and excited today!”)
+              </span>
+            </label>
+            <textarea
+              id="text-input"
+              class="textarea"
+              rows="4"
+              placeholder="Write a tweet, a sentence, or any short text..."
+              required
+            ></textarea>
+
+            <div class="form-row">
+              <div class="field">
+                <label for="api-url" class="form-label small">
+                  API URL
+                  <span class="hint">
+                    (Python backend endpoint, e.g.
+                    <code>https://your-backend.onrender.com/predict</code>)
+                  </span>
+                </label>
+                <input
+                  id="api-url"
+                  type="url"
+                  class="input"
+                  placeholder="https://your-backend/predict"
+                />
+              </div>
+            </div>
+
+            <div class="actions">
+              <button type="submit" class="btn btn-primary">
+                Detect Emotion
+              </button>
+              <button type="button" id="btn-example" class="btn btn-ghost">
+                Try an example
+              </button>
+            </div>
+
+            <p class="status" id="status"></p>
+          </form>
+
+          <section id="result" class="result hidden">
+            <div class="result-summary">
+              <h3>Overall prediction</h3>
+              <p id="final-emotion" class="final-emotion"></p>
+              <p id="final-explanation" class="final-explanation"></p>
+            </div>
+
+            <div class="result-grid">
+              <div class="result-card">
+                <h4>Per‑model predictions</h4>
+                <table class="table" id="model-table">
+                  <thead>
+                    <tr>
+                      <th>Model</th>
+                      <th>Predicted emotion</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+
+              <div class="result-card">
+                <h4>Emotion distribution</h4>
+                <ul id="emotion-distribution" class="chip-list"></ul>
+                <p class="note">
+                  We combine predictions from all models using a simple
+                  majority‑vote. When there is a tie, SVM and XGBoost are given
+                  a slightly higher priority because they performed best during
+                  evaluation.
+                </p>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <!-- How it works -->
+        <section id="details" class="card">
+          <h2>How this system works</h2>
+          <div class="two-col">
+            <div>
+              <h3>End‑to‑end pipeline</h3>
+              <ol class="steps">
+                <li>
+                  <strong>Pre‑processing</strong>:
+                  emojis are converted to text, punctuation and numbers are
+                  removed, the text is tokenized, stopwords are removed, and
+                  the remaining tokens are lemmatized.
+                </li>
+                <li>
+                  <strong>Feature extraction</strong>:
+                  we apply a Count Vectorizer followed by TF‑IDF to represent
+                  each text as a numeric vector.
+                </li>
+                <li>
+                  <strong>Model inference</strong>:
+                  six different machine‑learning models are queried with the
+                  same vector.
+                </li>
+                <li>
+                  <strong>Aggregation</strong>:
+                  the web app combines their outputs into a final, more stable
+                  prediction.
+                </li>
+              </ol>
+            </div>
+            <div>
+              <h3>Emotions we detect</h3>
+              <ul class="pill-list">
+                <li class="pill pill-anger">anger</li>
+                <li class="pill pill-fear">fear</li>
+                <li class="pill pill-joy">joy</li>
+                <li class="pill pill-love">love</li>
+                <li class="pill pill-sadness">sadness</li>
+                <li class="pill pill-surprise">surprise</li>
+              </ul>
+              <p class="note">
+                The underlying dataset comes from SemEval‑2018 “Affect in
+                Tweets”, with 20,000 tweets labeled into the six emotions
+                above.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Models -->
+        <section id="models" class="card">
+          <h2>Models behind the scene</h2>
+          <div class="model-grid">
+            <article class="model-card">
+              <h3>SVM (SGDClassifier)</h3>
+              <p>
+                Linear Support Vector Machine trained with stochastic gradient
+                descent. This model achieved the highest accuracy in your
+                experiments (~89.5%).
+              </p>
+            </article>
+            <article class="model-card">
+              <h3>Logistic Regression</h3>
+              <p>
+                Multiclass logistic regression used as a strong linear baseline
+                for text classification tasks.
+              </p>
+            </article>
+            <article class="model-card">
+              <h3>Random Forest</h3>
+              <p>
+                An ensemble of decision trees. More robust than a single tree
+                and able to capture non‑linear feature interactions.
+              </p>
+            </article>
+            <article class="model-card">
+              <h3>XGBoost</h3>
+              <p>
+                Gradient‑boosted tree ensemble, often among the best performing
+                algorithms on tabular/text features.
+              </p>
+            </article>
+            <article class="model-card">
+              <h3>Multinomial Naive Bayes</h3>
+              <p>
+                Classic probabilistic model for text that works surprisingly
+                well for bag‑of‑words features.
+              </p>
+            </article>
+            <article class="model-card">
+              <h3>Decision Tree</h3>
+              <p>
+                A single interpretable tree that splits on TF‑IDF features to
+                reach emotion predictions.
+              </p>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <p>
+          Emotion Detection from Text &mdash; based on SemEval‑2018 “Affect in
+          Tweets” dataset and classic machine‑learning models.
+        </p>
+      </footer>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
+
+
